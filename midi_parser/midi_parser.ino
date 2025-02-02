@@ -48,8 +48,34 @@ void loop() {
   delay(100);
 }
 
+// return -1 if the value fo `noteNo` is out of the range
 int noteNo2id(int noteNo) {
-  return noteNo - 30;
+  if (noteNo >= 53 && noteNo <= 84) {
+    // note 53 ~ 84 -> id 3 ~ 34
+    return noteNo - 50;
+  } else if (noteNo >= 90 && noteNo <= 92) {
+    // note 90 ~ 92 -> id 37 ~ 39
+    return noteNo - 53;
+  } else {
+    switch (noteNo) {
+      case 48:
+        return 1;
+        break;
+      case 51:
+        return 2;
+        break;
+      case 87:
+      case 88:
+        return noteNo - 52;  // 87, 88 -> 35, 36
+        break;
+      case 92:
+        return 40;
+        break;
+      default:
+        return -1;
+        break;
+    }
+  }
 }
 
 void MIDIReceptionTask(void *parameters) {
