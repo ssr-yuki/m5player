@@ -48,8 +48,8 @@ void loop() {
   delay(100);
 }
 
-int noteNo2id(int noteNo){
-  return noteNo-30;
+int noteNo2id(int noteNo) {
+  return noteNo - 30;
 }
 
 void MIDIReceptionTask(void *parameters) {
@@ -59,12 +59,12 @@ void MIDIReceptionTask(void *parameters) {
       if (MIDI.getType() == midi::NoteOn) {
         Serial.print("Receive NoteON: ");
         Serial.println(noteNO);
-        solenoid.SetSolenoid(noteNo2id(noteNO),1);
+        solenoid.SetSolenoid(noteNo2id(noteNO), 1);
         digitalWrite(LED_G, HIGH);
       } else if (MIDI.getType() == midi::NoteOff) {
         Serial.print("Receive NoteOFF: ");
         Serial.println(noteNO);
-        solenoid.SetSolenoid(noteNo2id(noteNO),0);
+        solenoid.SetSolenoid(noteNo2id(noteNO), 0);
         digitalWrite(LED_G, LOW);
       }
     }
