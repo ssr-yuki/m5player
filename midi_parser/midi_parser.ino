@@ -37,7 +37,6 @@ void setup() {
     NULL,
     1
   );
-
 }
 
 void loop() {
@@ -83,13 +82,9 @@ void MIDIReceptionTask(void *parameters) {
     if (MIDI.read()) {
       const int noteNO = MIDI.getData1();
       if (MIDI.getType() == midi::NoteOn) {
-        Serial.print("Receive NoteON: ");
-        Serial.println(noteNO);
         solenoid.SetSolenoid(noteNo2id(noteNO), 1);
         digitalWrite(LED_G, HIGH);
       } else if (MIDI.getType() == midi::NoteOff) {
-        Serial.print("Receive NoteOFF: ");
-        Serial.println(noteNO);
         solenoid.SetSolenoid(noteNo2id(noteNO), 0);
         digitalWrite(LED_G, LOW);
       }
