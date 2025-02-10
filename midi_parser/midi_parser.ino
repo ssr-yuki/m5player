@@ -8,7 +8,21 @@
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI);
 Solenoid solenoid;
 
+const int minOnCount = 5;  // minimum duration to push keys [ms]
+const int numSolenoid = 40;
+
+// incremental timers for notes
+// 0: off
+// positive: on, off signal is not yet received
+// negative: on, will be turned off
+int noteOnTimer[numSolenoid];
+
 void setup() {
+  // initialize counters
+  for (int i = 0; i < numSolenoid; ++i) {
+    noteOnTimer[i] = 0;
+  }
+
   auto cfg = M5.config();
   AtomS3.begin(cfg);
 
@@ -80,12 +94,30 @@ int noteNo2id(int noteNo) {
 void MIDIReceptionTask(void *parameters) {
   while (1) {
     if (MIDI.read()) {
+      // update timers
+      for (int i = 0; i < numSolenoid; ++i) {
+        if (noteOnTimer[i] != 0) {
+          ++noteOnTimer[i];
+          if (noteOnTimer[i] == 0) {
+            solenoid.SetSolenoid(i, 0);          
+          }
+        }
+      }
+
       const int noteNO = MIDI.getData1();
       if (MIDI.getType() == midi::NoteOn) {
-        solenoid.SetSolenoid(noteNo2id(noteNO), 1);
+        const int id = noteNo2id(noteNO);
+        solenoid.SetSolenoid(id, 1);
+        noteOnTimer[id] = 1;
         digitalWrite(LED_G, HIGH);
       } else if (MIDI.getType() == midi::NoteOff) {
-        solenoid.SetSolenoid(noteNo2id(noteNO), 0);
+        const int id = noteNo2id(noteNO);
+        if (noteOnTimer[id] >= minOnCount) {
+          solenoid.SetSolenoid(id, 0);
+          noteOnTimer[id] = 0;
+        } else {
+          noteOnTimer[id] -= minOnCount; 
+        }
         digitalWrite(LED_G, LOW);
       }
     }
