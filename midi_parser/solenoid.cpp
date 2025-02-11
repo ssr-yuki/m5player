@@ -9,7 +9,7 @@ Solenoid::Solenoid() {
 };
 
 void Solenoid::SetSolenoid(int id, int on_off) {
-  if (id < 0 || id > SOLENOID_NUM) {
+  if (id < 0 || id >= SOLENOID_NUM) {
     return;
   }
 

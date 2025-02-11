@@ -64,25 +64,25 @@ void loop() {
 // return -1 if the value fo `noteNo` is out of the range
 int noteNo2id(int noteNo) {
   if (noteNo >= 53 && noteNo <= 84) {
-    // note 53 ~ 84 -> id 3 ~ 34
-    return noteNo - 50;
+    // note 53 ~ 84 -> id 2 ~ 33
+    return noteNo - 51;
   } else if (noteNo >= 90 && noteNo <= 92) {
-    // note 90 ~ 92 -> id 37 ~ 39
-    return noteNo - 53;
+    // note 90 ~ 92 -> id 36 ~ 38
+    return noteNo - 54;
   } else {
     switch (noteNo) {
       case 48:
-        return 1;
+        return 0;
         break;
       case 51:
-        return 2;
+        return 1;
         break;
       case 87:
       case 88:
-        return noteNo - 52;  // 87, 88 -> 35, 36
+        return noteNo - 53;  // 87, 88 -> 34, 35
         break;
       case 92:
-        return 40;
+        return 39;
         break;
       default:
         return -1;
