@@ -93,17 +93,17 @@ int noteNo2id(int noteNo) {
 
 void MIDIReceptionTask(void *parameters) {
   while (1) {
-    if (MIDI.read()) {
-      // update timers
-      for (int i = 0; i < numSolenoid; ++i) {
-        if (noteOnTimer[i] != 0) {
-          ++noteOnTimer[i];
-          if (noteOnTimer[i] == 0) {
-            solenoid.SetSolenoid(i, 0);          
-          }
+    // update timers
+    for (int i = 0; i < numSolenoid; ++i) {
+      if (noteOnTimer[i] != 0) {
+        ++noteOnTimer[i];
+        if (noteOnTimer[i] == 0) {
+          solenoid.SetSolenoid(i, 0);
         }
       }
+    }
 
+    while (MIDI.read()) {
       const int noteNO = MIDI.getData1();
       if (MIDI.getType() == midi::NoteOn) {
         const int id = noteNo2id(noteNO);
