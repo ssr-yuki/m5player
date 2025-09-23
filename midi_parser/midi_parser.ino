@@ -81,7 +81,7 @@ int noteNo2id(int noteNo) {
       case 88:
         return noteNo - 53;  // 87, 88 -> 34, 35
         break;
-      case 92:
+      case 94:
         return 39;
         break;
       default:
