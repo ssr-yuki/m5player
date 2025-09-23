@@ -8,7 +8,8 @@
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI);
 Solenoid solenoid;
 
-const int minOnCount = 5;  // minimum duration to push keys [ms]
+const int minOnCount = 50;  // minimum duration to push keys [ms]
+const int minWaitTime = 50;
 const int numSolenoid = 40;
 
 // incremental timers for notes
@@ -17,10 +18,17 @@ const int numSolenoid = 40;
 // negative: on, will be turned off
 int noteOnTimer[numSolenoid];
 
+// incremental timers for notes
+// 0: off, avaiable
+// positive: off, on signal is not yet received
+// negative: on, will be turned on
+int noteWaitTimer[numSolenoid];
+
 void setup() {
   // initialize counters
   for (int i = 0; i < numSolenoid; ++i) {
     noteOnTimer[i] = 0;
+    noteWaitTimer[i] = 0;
   }
 
   auto cfg = M5.config();
@@ -95,28 +103,47 @@ void MIDIReceptionTask(void *parameters) {
   while (1) {
     // update timers
     for (int i = 0; i < numSolenoid; ++i) {
+      if (noteWaitTimer[i] > 0) {
+        --noteWaitTimer[i];
+      } else if (noteWaitTimer[i] < 0) {
+        ++noteWaitTimer[i];
+        if(noteWaitTimer[i] == 0) {
+          solenoid.SetSolenoid(i, 1);
+          noteOnTimer[i] = 1;
+        }
+      }
+
       if (noteOnTimer[i] != 0) {
         ++noteOnTimer[i];
         if (noteOnTimer[i] == 0) {
           solenoid.SetSolenoid(i, 0);
+          noteWaitTimer[i] = minWaitTime;
         }
       }
     }
 
     while (MIDI.read()) {
       const int noteNO = MIDI.getData1();
+      const int id = noteNo2id(noteNO);
+      if (id < 0) {
+        continue;
+      }
+  
       if (MIDI.getType() == midi::NoteOn) {
-        const int id = noteNo2id(noteNO);
-        solenoid.SetSolenoid(id, 1);
-        noteOnTimer[id] = 1;
+        if (noteWaitTimer[id] == 0) {
+          solenoid.SetSolenoid(id, 1);
+          noteOnTimer[id] = 1;
+        } else if (noteWaitTimer[id] > 0) {
+          noteWaitTimer[id] -= minWaitTime;
+        }
         digitalWrite(LED_G, HIGH);
       } else if (MIDI.getType() == midi::NoteOff) {
-        const int id = noteNo2id(noteNO);
         if (noteOnTimer[id] >= minOnCount) {
           solenoid.SetSolenoid(id, 0);
           noteOnTimer[id] = 0;
+          noteWaitTimer[id] = minWaitTime;
         } else {
-          noteOnTimer[id] -= minOnCount; 
+          noteOnTimer[id] -= minOnCount;
         }
         digitalWrite(LED_G, LOW);
       }
