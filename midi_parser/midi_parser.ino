@@ -41,8 +41,10 @@ void setup() {
   M5.update();
   M5.Display.setTextSize(3);
   M5.Display.startWrite();
-  if (M5.BtnA.isPressed()) {
-    useYamaha = true;
+
+  useYamaha = M5.BtnA.isPressed();
+
+  if (useYamaha) {
     M5.Display.println("YAMAHA");
   } else {
     M5.Display.println("Int.");
@@ -56,6 +58,14 @@ void setup() {
   Serial2.begin(31250, SERIAL_8N1, 1, 2);
 
   delay(50);
+
+  // for (int note = 30; note < 100; ++note) {
+  //   const int id = noteNo2id(note);
+  //   solenoid.SetSolenoid(id, 1);
+  //   delay(250);
+  //   solenoid.SetSolenoid(id, 0);
+  //   delay(250);
+  // }
 
   // activate all MIDI channels
   MIDI.begin(MIDI_CHANNEL_OMNI);
@@ -85,32 +95,32 @@ void loop() {
 
 // return -1 if the value fo `noteNo` is out of the range
 int noteNo2id(int noteNo) {
-  if (noteNo >= 53 && noteNo <= 84) {
-    // note 53 ~ 84 -> id 2 ~ 33
-    return noteNo - 51;
-  } else if (noteNo >= 90 && noteNo <= 92) {
+  int ret = -1;
+
+  if (useYamaha) {
+    noteNo -= 12;
+  }
+
+  if (noteNo >= 36 && noteNo < 53) {
+    ret = noteNo - 36;
+  } else if (noteNo >= 60 && noteNo <= 72) {
+    ret = noteNo - 60 + 17 + 4;
+  } else if (noteNo >= 78 && noteNo <= 80) {
     // note 90 ~ 92 -> id 36 ~ 38
-    return noteNo - 54;
+    ret = noteNo - 42;
   } else {
     switch (noteNo) {
-      case 48:
-        return 0;
+      case 75:
+      case 76:
+        ret = noteNo - 41;  // 87, 88 -> 34, 35
         break;
-      case 51:
-        return 1;
-        break;
-      case 87:
-      case 88:
-        return noteNo - 53;  // 87, 88 -> 34, 35
-        break;
-      case 94:
-        return 39;
-        break;
-      default:
-        return -1;
+      case 82:
+        ret = 39;
         break;
     }
   }
+
+  return ret;
 }
 
 void MIDIReceptionTask(void *parameters) {
