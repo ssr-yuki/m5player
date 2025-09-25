@@ -12,18 +12,35 @@ void Solenoid::SetSolenoid(int id, int on_off) {
   if (id < 0 || id >= SOLENOID_NUM) {
     return;
   }
-
-  int ic_id = (int)(id / 8);
   solenoid_state[id] = on_off;
-  uint8_t data = solenoid_state[0 + 8 * ic_id] << 0 |
-                 solenoid_state[1 + 8 * ic_id] << 1 |
-                 solenoid_state[2 + 8 * ic_id] << 2 |
-                 solenoid_state[3 + 8 * ic_id] << 3 |
-                 solenoid_state[4 + 8 * ic_id] << 4 |
-                 solenoid_state[5 + 8 * ic_id] << 5 |
-                 solenoid_state[6 + 8 * ic_id] << 6 |
-                 solenoid_state[7 + 8 * ic_id] << 7;
-  Wire1.beginTransmission(0x20 + ic_id);
+
+  int unit_id = (int)(id / 12);
+  int board_id;
+  int board_addr;
+
+  uint8_t data;
+
+  if(id%12<5){
+    board_id=unit_id*2;
+    board_addr=0x20+unit_id;
+    data =  solenoid_state[unit_id*12+0] << 0 |
+            solenoid_state[unit_id*12+1] << 1 |
+            solenoid_state[unit_id*12+2] << 2 |
+            solenoid_state[unit_id*12+3] << 3 |
+            solenoid_state[unit_id*12+4] << 4 ;
+  }else{
+    board_id=unit_id*2+1;
+    board_addr=0x38+unit_id;
+    data =  solenoid_state[unit_id*12+5] << 0 |
+            solenoid_state[unit_id*12+6] << 1 |
+            solenoid_state[unit_id*12+7] << 2 |
+            solenoid_state[unit_id*12+8] << 3 |
+            solenoid_state[unit_id*12+9] << 4 |
+            solenoid_state[unit_id*12+10] << 5 |
+            solenoid_state[unit_id*12+11] << 6 ;
+  }
+
+  Wire1.beginTransmission(board_addr);
   Wire1.write(data);
   Wire1.endTransmission();
 }

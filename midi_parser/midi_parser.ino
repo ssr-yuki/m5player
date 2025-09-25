@@ -4,6 +4,7 @@
 
 #define LED_G (7)
 #define LED_B (8)
+#define POWER_SW (6)
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI);
 Solenoid solenoid;
@@ -24,6 +25,14 @@ int noteOnTimer[numSolenoid];
 // negative: on, will be turned on
 int noteWaitTimer[numSolenoid];
 
+void PowerOn(){
+  digitalWrite(POWER_SW, HIGH);
+}
+void PowerOff(){
+  digitalWrite(POWER_SW, LOW);
+}
+
+
 void setup() {
   // initialize counters
   for (int i = 0; i < numSolenoid; ++i) {
@@ -34,14 +43,18 @@ void setup() {
   auto cfg = M5.config();
   AtomS3.begin(cfg);
 
-  solenoid.ResetSolenoid();
   pinMode(LED_G, OUTPUT);
   pinMode(LED_B, OUTPUT);
+  pinMode(POWER_SW, OUTPUT);
+  PowerOff();
+
+  solenoid.ResetSolenoid();
 
   Serial.begin(115200);
   Serial2.begin(31250, SERIAL_8N1, 1, 2);
 
-  delay(50);
+  delay(1000);
+  PowerOn();
 
   // activate all MIDI channels
   MIDI.begin(MIDI_CHANNEL_OMNI);
@@ -62,11 +75,12 @@ void setup() {
 }
 
 void loop() {
-  digitalWrite(LED_B, HIGH);
-  delay(500);
-  digitalWrite(LED_B, LOW);
-
-  delay(100);
+  for(int i=0;i<60;i++){
+  solenoid.SetSolenoid(i, 1);
+  delay(50);
+  solenoid.SetSolenoid(i, 0);
+  delay(50);
+  }
 }
 
 // return -1 if the value fo `noteNo` is out of the range

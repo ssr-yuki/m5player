@@ -7,7 +7,7 @@ public:
   Solenoid();
   void ResetSolenoid();
   void SetSolenoid(int id, int on_off);
-  const static int SOLENOID_NUM = 40;
+  const static int SOLENOID_NUM = 60;
 private:
   uint8_t solenoid_state[SOLENOID_NUM] = { 0 };
 };
