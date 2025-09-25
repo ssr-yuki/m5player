@@ -4,6 +4,7 @@
 
 #define LED_G (7)
 #define LED_B (8)
+#define POWER_SW (6)
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, MIDI);
 Solenoid solenoid;
@@ -25,6 +26,14 @@ int noteOnTimer[numSolenoid];
 // positive: off, on signal is not yet received
 // negative: on, will be turned on
 int noteWaitTimer[numSolenoid];
+
+void PowerOn(){
+  digitalWrite(POWER_SW, HIGH);
+}
+
+void PowerOff(){
+  digitalWrite(POWER_SW, LOW);
+}
 
 void setup() {
   // initialize counters
@@ -50,14 +59,18 @@ void setup() {
     M5.Display.println("Int.");
   }
 
-  solenoid.ResetSolenoid();
   pinMode(LED_G, OUTPUT);
   pinMode(LED_B, OUTPUT);
+  pinMode(POWER_SW, OUTPUT);
+  PowerOff();
+
+  solenoid.ResetSolenoid();
 
   Serial.begin(115200);
   Serial2.begin(31250, SERIAL_8N1, 1, 2);
 
-  delay(50);
+  delay(1000);
+  PowerOn();
 
   // test playing
   // test();
