@@ -59,6 +59,9 @@ void setup() {
 
   delay(50);
 
+  // test playing
+  // test();
+
   // activate all MIDI channels
   MIDI.begin(MIDI_CHANNEL_OMNI);
 
@@ -150,5 +153,15 @@ void MIDIReceptionTask(void *parameters) {
     }
 
     vTaskDelay(1); 
+  }
+}
+
+void test() {
+  for (int note = 36; note < 36 + 61; ++note) {
+    const int id = noteNo2id(note);
+    solenoid.SetSolenoid(id, 1);
+    delay(250);
+    solenoid.SetSolenoid(id, 0);
+    delay(250);
   }
 }
