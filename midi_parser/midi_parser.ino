@@ -12,6 +12,8 @@ const int minOnCount = 50;  // minimum duration to push keys [ms]
 const int minWaitTime = 50;
 const int numSolenoid = 40;
 
+bool useYamaha = 0;
+
 // incremental timers for notes
 // 0: off
 // positive: on, off signal is not yet received
@@ -33,6 +35,20 @@ void setup() {
 
   auto cfg = M5.config();
   AtomS3.begin(cfg);
+  delay(100);
+
+  // display MIDI style
+  M5.update();
+  M5.Display.setTextSize(3);
+  M5.Display.startWrite();
+
+  useYamaha = M5.BtnA.isPressed();
+
+  if (useYamaha) {
+    M5.Display.println("YAMAHA");
+  } else {
+    M5.Display.println("Int.");
+  }
 
   solenoid.ResetSolenoid();
   pinMode(LED_G, OUTPUT);
