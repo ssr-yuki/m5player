@@ -10,7 +10,7 @@ Solenoid solenoid;
 
 const int minOnCount = 50;  // minimum duration to push keys [ms]
 const int minWaitTime = 50;
-const int numSolenoid = 40;
+const int numSolenoid = 60;
 
 bool useYamaha = 0;
 
@@ -87,31 +87,15 @@ void loop() {
 
 // return -1 if the value fo `noteNo` is out of the range
 int noteNo2id(int noteNo) {
-  if (noteNo >= 53 && noteNo <= 84) {
-    // note 53 ~ 84 -> id 2 ~ 33
-    return noteNo - 51;
-  } else if (noteNo >= 90 && noteNo <= 92) {
-    // note 90 ~ 92 -> id 36 ~ 38
-    return noteNo - 54;
+  if (useYamaha) {
+    // shift 1 octave (= 12 notes)
+    noteNo -= 12;
+  }
+  
+  if (noteNo >= 36 && noteNo < 96) {
+    return noteNo - 36;
   } else {
-    switch (noteNo) {
-      case 48:
-        return 0;
-        break;
-      case 51:
-        return 1;
-        break;
-      case 87:
-      case 88:
-        return noteNo - 53;  // 87, 88 -> 34, 35
-        break;
-      case 94:
-        return 39;
-        break;
-      default:
-        return -1;
-        break;
-    }
+    return -1;
   }
 }
 
